@@ -84,9 +84,16 @@ namespace sdkBluetoothA2AWP8CS
                 this.Dispatcher.BeginInvoke(() =>
                 {
                     // Ask the user if they want to accept the incoming request.
+                  /*   var result = MessageBox.Show(String.Format(AppResources.Msg_ChatPrompt, args.PeerInformation.DisplayName) 
+                                                 , AppResources.Msg_ChatPromptTitle, MessageBoxButton.OKCancel); 
+                    if (result == MessageBoxResult.OK) 
+                    { 
+                    */
+
+                    // I commented out the permission part, now the peers can connect without permission
                    
                         ConnectToPeer(args.PeerInformation);
-                    
+                    //}
                 });
             }
             catch (Exception ex)
