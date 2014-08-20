@@ -10,6 +10,7 @@
   
 */
 using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,6 +22,7 @@ using sdkBluetoothA2AWP8CS.Resources;
 using Windows.Networking.Proximity;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
+using System.Collections.Generic;
 
 namespace sdkBluetoothA2AWP8CS
 {
@@ -29,13 +31,14 @@ namespace sdkBluetoothA2AWP8CS
         ObservableCollection<PeerAppInfo> _peerApps;    // A local copy of peer app information
         StreamSocket _socket;                           // The socket object used to communicate with a peer
         string _peerName = string.Empty;                // The name of the current peer
-
-
+        string _peerId = string.Empty;                // The name of the current peer
+        
         // Error code constants
         const uint ERR_BLUETOOTH_OFF = 0x8007048F;      // The Bluetooth radio is off
         const uint ERR_MISSING_CAPS = 0x80070005;       // A capability is missing from your WMAppManifest.xml
         const uint ERR_NOT_ADVERTISING = 0x8000000E;    // You are currently not advertising your presence using PeerFinder.Start()
-       
+        Dictionary<String, String> dic = new Dictionary<string, string>();
+
 
         // Constructor
         public ChatPage()
@@ -45,6 +48,7 @@ namespace sdkBluetoothA2AWP8CS
             SystemTray.SetProgressIndicator(this, new ProgressIndicator());
 
             this.DataContext = App.ChatName;
+            
         }
 
 
@@ -113,8 +117,20 @@ namespace sdkBluetoothA2AWP8CS
                 PeerFinder.Stop();
 
                 _peerName = peer.DisplayName;
-                UpdateChatBox(AppResources.Msg_ChatStarted, true);
+               // UpdateChatBox(AppResources.Msg_ChatStarted, true);
+                bool hasValue = dic.ContainsKey(_peerName);
 
+                if (hasValue)
+                {
+                    UpdateChatBox("FOund in Dictionary", true);
+
+                }
+                else
+                {
+                    dic.Add(_peerName, "1");
+                    if(dic.ContainsKey(_peerName))
+                    UpdateChatBox(AppResources.Msg_ChatStarted, true);
+                }
                 // Since this is a chat, messages can be incoming and outgoing. 
                 // Listen for incoming messages.
                 ListenForIncomingMessage();
@@ -230,6 +246,12 @@ namespace sdkBluetoothA2AWP8CS
                     if (PeerList.Items.Count == 1)
                         PeerList.SelectedIndex = 0;
 
+                    // Connect to the selected peer.
+                    PeerAppInfo pdi = PeerList.SelectedItem as PeerAppInfo;
+                    PeerInformation peer1 = pdi.PeerInfo;
+
+                    ConnectToPeer(peer1);
+
                 }
             }
             catch (Exception ex)
@@ -279,7 +301,10 @@ namespace sdkBluetoothA2AWP8CS
         DataWriter _dataWriter;
         private void SendMessage_Tap_1(object sender, GestureEventArgs e)
         {
-            SendMessage(txtMessage.Text);
+            int id = 123;
+            String msg = txtMessage.Text;
+            msg = id + msg;
+            SendMessage(msg);
         }
 
         private async void SendMessage(string message)
@@ -351,6 +376,11 @@ namespace sdkBluetoothA2AWP8CS
             connectionSettingsTask.ConnectionSettingsType = ConnectionSettingsType.Bluetooth;
             connectionSettingsTask.Show();
         }
+
+        private void ConnectToSelected_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     /// <summary>
@@ -363,7 +393,6 @@ namespace sdkBluetoothA2AWP8CS
             this.PeerInfo = peerInformation;
             this.DisplayName = this.PeerInfo.DisplayName;
         }
-
         public string DisplayName { get; private set; }
         public PeerInformation PeerInfo { get; private set; }
     }
