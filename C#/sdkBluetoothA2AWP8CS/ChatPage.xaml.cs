@@ -128,7 +128,6 @@ namespace sdkBluetoothA2AWP8CS
                 else
                 {
                     dic.Add(_peerName, "1");
-                    if(dic.ContainsKey(_peerName))
                     UpdateChatBox(AppResources.Msg_ChatStarted, true);
                 }
                 // Since this is a chat, messages can be incoming and outgoing. 
@@ -304,7 +303,14 @@ namespace sdkBluetoothA2AWP8CS
             int id = 123;
             String msg = txtMessage.Text;
             msg = id + msg;
-            SendMessage(msg);
+            bool keyPresent = dic.ContainsKey(_peerName);
+            if (keyPresent)
+            {
+                SendMessage("Can't send more than one message");
+            }
+            else {
+                SendMessage(msg);
+            }
         }
 
         private async void SendMessage(string message)
